@@ -1,0 +1,28 @@
+{
+    "name": "inhere/slim-whoops",
+    "type": "library",
+    "description": "PHP whoops error on slim framework",
+    "keywords": ["error", "exception", "whoops", "slim"],
+    "homepage": "https://github.com/inhere/slim-whoops/",
+    "license": "BSD-2-Clause",
+    "authors": [{
+            "name": "inhere",
+            "email": "in.798@qq.com",
+            "homepage": "http://www.yzone.net/",
+            "role": "Developer"
+    }],
+    "require": {
+        "php": ">=5.5.0",
+        "filp/whoops": "2.*"
+    },
+    "require-dev": {
+    	"slim/slim": "3.1.*",
+        "phpunit/phpunit": "4.8.*",
+        "slim/twig-view": "2.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "inhere\\whoops\\": "src/"
+        }
+    }
+}
