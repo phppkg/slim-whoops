@@ -72,8 +72,10 @@ class WhoopsTool
 
             $whoops->register();
 
-            $container['errorHandler'] = function() use ($whoops) {
-                return new ErrorHandler($whoops);
+            $container['errorHandler'] = function($c) use ($whoops) {
+                $logger = isset($c['errLogger']) ? $c['errLogger'] : $c['logger'];
+
+                return new ErrorHandler($whoops, $logger);
             };
 
             $container['whoops'] = $whoops;

@@ -5,6 +5,7 @@ use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
 use Whoops\Run as WhoopsRun;
+use Psr\Log\LoggerInterface as Logger;
 
 /**
  * Class ErrorHandler
@@ -18,11 +19,17 @@ class ErrorHandler
     private $whoops;
 
     /**
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * @param WhoopsRun $whoops
      */
-    public function __construct(WhoopsRun $whoops)
+    public function __construct(WhoopsRun $whoops, Logger $logger)
     {
         $this->whoops = $whoops;
+        $this->logger = $logger;
     }
 
     /**
@@ -35,12 +42,16 @@ class ErrorHandler
     {
         $handler = WhoopsRun::EXCEPTION_HANDLER;
 
+        // Log the message
+        $this->logger->critical($exception->getMessage());
+
         ob_start();
 
         $this->whoops->$handler($exception);
 
         $content = ob_get_clean();
         $code    = $exception instanceof \HttpException ? $exception->getStatusCode() : 500;
+
 
         return $response
                 ->withStatus($code)
