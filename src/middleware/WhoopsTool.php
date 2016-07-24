@@ -29,12 +29,13 @@ class WhoopsTool
         /** @var \Slim\Container $container */
         $container   = $app->getContainer();
         $settings    = $container['settings'];
-        /** @var Environment $environment */
-        $environment = $container['environment'];
         /** @var Request $request */
-        $request     = $container['request'];
+        // $request     = $container['request'];
 
         if (isset($settings['debug']) === true && $settings['debug'] === true) {
+            /** @var Environment $environment */
+            $environment = $container['environment'];
+
             // Enable PrettyPageHandler with editor options
             $prettyPageHandler = new PrettyPageHandler();
 
@@ -75,10 +76,16 @@ class WhoopsTool
             $container['errorHandler'] = function($c) use ($whoops) {
                 $logger = isset($c['errLogger']) ? $c['errLogger'] : $c['logger'];
 
-                return new ErrorHandler($whoops, $logger);
+                return new ErrorHandler($logger, $whoops);
             };
 
             $container['whoops'] = $whoops;
+        } else {
+            $container['errorHandler'] = function($c) {
+                $logger = isset($c['errLogger']) ? $c['errLogger'] : $c['logger'];
+
+                return new ErrorHandler($logger);
+            };
         }
 
         return $next($request, $response);

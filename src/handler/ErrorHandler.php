@@ -24,12 +24,13 @@ class ErrorHandler
     private $logger;
 
     /**
-     * @param WhoopsRun $whoops
+     * @param Logger $logger
+     * @param WhoopsRun|null $whoops
      */
-    public function __construct(WhoopsRun $whoops, Logger $logger)
+    public function __construct(Logger $logger, WhoopsRun $whoops = null)
     {
-        $this->whoops = $whoops;
         $this->logger = $logger;
+        $this->whoops = $whoops;
     }
 
     /**
@@ -40,10 +41,17 @@ class ErrorHandler
      */
     public function __invoke(ServerRequestInterface $request, Response $response, Exception $exception)
     {
-        $handler = WhoopsRun::EXCEPTION_HANDLER;
-
         // Log the message
         $this->logger->critical($exception->getMessage());
+
+        // without enable debug.
+        if ( false == \Slim::config()->get('debug') ) {
+            return $response
+                            ->withHeader('Content-type', 'text\html')
+                            ->write("Happend error!");
+        }
+
+        $handler = WhoopsRun::EXCEPTION_HANDLER;
 
         ob_start();
 
