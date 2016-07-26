@@ -62,14 +62,11 @@ class ErrorHandler
     public function __invoke(ServerRequestInterface $request, Response $response, Exception $exception)
     {
         // Log the error message
-        if ( $this->settings['logFormat'] === self::LOG_FULL ) {
-            de($exception);
-            $text = $exception->getTraceAsString():;
-
-            $this->logger->error($exception->getMessage());
-        } else {
-            $this->logger->error($exception->getMessage());
-        }
+        $text = $exception->getMessage() . PHP_EOL
+                . $exception->getFile() . ' Line '
+                . $exception->getLine();
+        // $text .= $exception->getTraceAsString();
+        $this->logger->error($text);
 
         // without enable debug.
         if ( false == $this->settings['debug'] ) {
