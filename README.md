@@ -2,30 +2,32 @@
 
 ## Description
 
+PHP whoops error on slim framework 3.
 Reference [zeuxisoo/php-slim-whoops](https://github.com/zeuxisoo/php-slim-whoops/)
 
 
 ## Install
 
-- use composer
+- use command
 
-edit `composer.json`
+```
+composer required inhere/slim-whoops
+```
 
-_require-dev_ add
+- use composer.json
+
+edit `composer.json` _require-dev_ add
+
+> stable
+
+```
+"inhere/slim-whoops": "~1.0",
+```
+
+> lastest
 
 ```
 "inhere/slim-whoops": "dev-master",
-```
-
-_repositories_ add 
-
-```
-"repositories": [
-        {
-            "type": "git",
-            "url": "https://git.oschina.net/inhere/slim-whoops"
-        }
-    ]
 ```
 
 run: `composer update`
@@ -35,7 +37,7 @@ run: `composer update`
 - add the middleware into slim application
 
 ```
-$app->add(new \inhere\whoops\middleware\WhoopsTool());
+$app->add(new \inhere\whoops\middleware\WhoopsTool($app));
 ```
 
 ## Options

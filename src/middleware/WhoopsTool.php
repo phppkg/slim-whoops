@@ -7,6 +7,7 @@ use Whoops\Util\Misc;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Handler\JsonResponseHandler;
 use inhere\whoops\handler\ErrorHandler;
+use Slim\App;
 use Slim\Http\Environment;
 use Slim\Http\Request;
 
@@ -16,6 +17,15 @@ use Slim\Http\Request;
  */
 class WhoopsTool
 {
+    /**
+     * @var App
+     */
+    private $app;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+    }
 
     /**
      * @param Request $request
@@ -25,12 +35,8 @@ class WhoopsTool
      */
     public function __invoke(Request $request, $response, $next)
     {
-        $app         = \Slim::$app;
-        /** @var \Slim\Container $container */
-        $container   = $app->getContainer();
+        $container   = $this->app->container;
         $settings    = $container['settings'];
-        /** @var Request $request */
-        // $request     = $container['request'];
 
         if (isset($settings['debug']) === true && $settings['debug'] === true) {
             /** @var Environment $environment */
@@ -45,7 +51,7 @@ class WhoopsTool
 
             // Add more information to the PrettyPageHandler
             $prettyPageHandler->addDataTable('Slim Application', [
-                'Application Class' => get_class($app),
+                'Application Class' => get_class($this->app),
                 'Script Name'       => $environment->get('SCRIPT_NAME'),
                 'Request URI'       => $environment->get('PATH_INFO') ?: '<none>',
             ]);
@@ -74,17 +80,13 @@ class WhoopsTool
             $whoops->register();
 
             $container['errorHandler'] = function($c) use ($whoops) {
-                $logger = isset($c['errLogger']) ? $c['errLogger'] : $c['logger'];
-
-                return new ErrorHandler($logger, $whoops);
+                return new ErrorHandler($c, $whoops);
             };
 
             $container['whoops'] = $whoops;
         } else {
             $container['errorHandler'] = function($c) {
-                $logger = isset($c['errLogger']) ? $c['errLogger'] : $c['logger'];
-
-                return new ErrorHandler($logger);
+                return new ErrorHandler($c);
             };
         }
 

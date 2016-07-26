@@ -1,4 +1,10 @@
-/vendor/
+.idea/
+.phpintel/
+!README.md
+!.gitkeep
+*.swp
+*.swo
+.DS_Store
 composer.lock
 composer.phar
 tests/_log/
