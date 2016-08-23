@@ -72,7 +72,7 @@ class ErrorHandler
         if ( false == $this->settings['debug'] ) {
             return $response
                             ->withHeader('Content-type', 'text\html')
-                            ->write("Happend error!");
+                            ->write("An unexpected error occurred.(By whoops)!");
         }
 
         $handler = WhoopsRun::EXCEPTION_HANDLER;
