@@ -66,7 +66,14 @@ class ErrorHandler
                 . $exception->getFile() . ' Line '
                 . $exception->getLine();
         // $text .= $exception->getTraceAsString();
-        $this->logger->error($text);
+        $context['request'] = [
+            'HOST' => $this->getServer('HTTP_HOST'),
+            'METHOD' => $this->getServer('request_method'),
+            'URI' => $this->getServer('request_uri'),
+            'REFERER' => $this->getServer('HTTP_REFERER'),
+        ];
+
+        $this->logger->error($text, $context);
 
         // without enable debug.
         if ( false == $this->settings['debug'] ) {
@@ -94,5 +101,13 @@ class ErrorHandler
     {
 
     }
+
+    public function getServer($name, $default = '')
+    {
+        $name = strtoupper($name);
+
+        return isset($_SERVER[$name]) ? $_SERVER[$name] : $default;
+    }
+
 
 }
