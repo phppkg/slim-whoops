@@ -3,8 +3,11 @@
 ## Description
 
 PHP whoops error on slim framework 3.
+
 Reference [zeuxisoo/php-slim-whoops](https://github.com/zeuxisoo/php-slim-whoops/)
 
+- show pretty error page.
+- record error/exception log.
 
 ## Install
 
@@ -24,7 +27,7 @@ edit `composer.json` _require-dev_ add
 "inhere/slim-whoops": "~1.0",
 ```
 
-> lastest
+> latest
 
 ```
 "inhere/slim-whoops": "dev-master",
@@ -37,7 +40,7 @@ run: `composer update`
 - add the middleware into slim application
 
 ```
-$app->add(new \inhere\whoops\middleware\WhoopsTool($app));
+$app->add(new \inhere\whoops\WhoopsMiddleware($app));
 ```
 
 ## Options
@@ -47,8 +50,10 @@ $app->add(new \inhere\whoops\middleware\WhoopsTool($app));
 ```
 $app = new App([
     'settings' => [
-        'debug'         => true,
-        'whoops.editor' => 'sublime' // Support click to open editor
+        'whoops' => [
+            'debug'  => true,
+            'editor' => 'sublime' // Support click to open file in the editor
+        ]
     ]
 ]);
 ```

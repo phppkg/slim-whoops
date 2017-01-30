@@ -1,7 +1,8 @@
 <?php
 
-namespace inhere\whoops\middleware;
+namespace inhere\whoops;
 
+use inhere\whoops\handler\RecordLogHandler;
 use Whoops\Run as WhoopsRun;
 use Whoops\Util\Misc;
 use Whoops\Handler\PrettyPageHandler;
@@ -12,10 +13,10 @@ use Slim\Http\Environment;
 use Slim\Http\Request;
 
 /**
- * Class WhoopsTool
- * @package inhere\whoops\middleware
+ * Class WhoopsMiddleware
+ * @package inhere\whoops
  */
-class WhoopsTool
+class WhoopsMiddleware
 {
     /**
      * @var App
@@ -35,18 +36,18 @@ class WhoopsTool
      */
     public function __invoke(Request $request, $response, $next)
     {
-        $container   = $this->app->container;
-        $settings    = $container['settings'];
+        $container   = $this->app->getContainer();
+        $settings    = $container['settings']->get('whoops');
 
-        if (isset($settings['debug']) === true && $settings['debug'] === true) {
+        if (isset($settings['debug']) && (bool)$settings['debug'] === true) {
             /** @var Environment $environment */
             $environment = $container['environment'];
 
             // Enable PrettyPageHandler with editor options
             $prettyPageHandler = new PrettyPageHandler();
 
-            if (empty($settings['whoops.editor']) === false) {
-                $prettyPageHandler->setEditor($settings['whoops.editor']);
+            if (!empty($settings['editor'])) {
+                $prettyPageHandler->setEditor($settings['editor']);
             }
 
             // Add more information to the PrettyPageHandler
@@ -63,6 +64,7 @@ class WhoopsTool
                 'Query String'    => $request->getUri()->getQuery() ?: '<none>',
                 'HTTP Method'     => $request->getMethod(),
                 'Base URL'        => (string) $request->getUri(),
+                'REMOTE ADDR'     => $environment->get('REMOTE_ADDR'),
                 'Scheme'          => $request->getUri()->getScheme(),
                 'Port'            => $request->getUri()->getPort(),
                 'Host'            => $request->getUri()->getHost(),
@@ -72,6 +74,13 @@ class WhoopsTool
             $whoops = new WhoopsRun;
             $whoops->pushHandler($prettyPageHandler);
 
+            // record log to file
+            $logHandler = new RecordLogHandler();
+            $logger = isset($container['errLogger']) ? $container['errLogger'] : $container['logger'];
+            $logHandler->setLogger($logger);
+            $logHandler->setOptions($settings);
+            $whoops->pushHandler($logHandler);
+
             // Enable JsonResponseHandler when request is AJAX
             if (Misc::isAjaxRequest()){
                 $whoops->pushHandler(new JsonResponseHandler());
@@ -79,16 +88,12 @@ class WhoopsTool
 
             $whoops->register();
 
-            $container['errorHandler'] = function($c) use ($whoops) {
-                return new ErrorHandler($c, $whoops);
-            };
-
             $container['whoops'] = $whoops;
-        } else {
-            $container['errorHandler'] = function($c) {
-                return new ErrorHandler($c);
-            };
         }
+
+        $container['phpErrorHandler'] = $container['errorHandler'] = function($c) {
+            return new ErrorHandler($c);
+        };
 
         return $next($request, $response);
     }

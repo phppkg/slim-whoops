@@ -2,16 +2,17 @@
 require_once dirname(dirname(__FILE__)).'/vendor/autoload.php';
 
 use Slim\App;
-use Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware;
+use inhere\whoops\WhoopsMiddleware;
+
 
 $app = new App([
-    'settings' => [
-        'debug'         => true,
-        'whoops.editor' => 'sublime'
+    'whoops' => [
+        'debug'  => true,
+        'editor' => 'sublime' // Support click to open file in the editor
     ]
 ]);
 
-$app->add(new WhoopsMiddleware);
+$app->add(new WhoopsMiddleware($app));
 
 $container = $app->getContainer();
 $container['view'] = function($c) {
