@@ -32,7 +32,7 @@ class ErrorHandler
     public function __construct(RecordLogHandler $logHandler, WhoopsRun $whoops = null)
     {
         $this->logHandler = $logHandler;
-        $this->whoops = isset($container['whoops']) ? $container['whoops'] : null;
+        $this->whoops = $whoops;
     }
 
     /**

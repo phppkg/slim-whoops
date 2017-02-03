@@ -3,14 +3,15 @@
 namespace inhere\whoops;
 
 use inhere\whoops\handler\RecordLogHandler;
+use inhere\whoops\handler\ErrorHandler;
 use Whoops\Run as WhoopsRun;
 use Whoops\Util\Misc;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Handler\JsonResponseHandler;
-use inhere\whoops\handler\ErrorHandler;
 use Slim\App;
 use Slim\Http\Environment;
 use Slim\Http\Request;
+use Slim\Container;
 
 /**
  * Class WhoopsMiddleware
@@ -38,6 +39,17 @@ class WhoopsMiddleware
     {
         $container   = $this->app->getContainer();
         $settings    = $container['settings']->get('whoops');
+
+        // record log to file
+        $logHandler = new RecordLogHandler();
+        $logger = isset($container['errLogger']) ? $container['errLogger'] : $container['logger'];
+        $logHandler->setLogger($logger);
+        $logHandler->setOptions($settings);
+
+        $container['phpErrorHandler'] = $container['errorHandler'] = function($c) use ($logHandler) {
+            /** @var Container $c */
+            return new ErrorHandler($logHandler, $c->has('whoops') ? $c->get('whoops') : null);
+        };
 
         if (isset($settings['debug']) && (bool)$settings['debug'] === true) {
             /** @var Environment $environment */
@@ -73,12 +85,6 @@ class WhoopsMiddleware
             // Set Whoops to default exception handler
             $whoops = new WhoopsRun;
             $whoops->pushHandler($prettyPageHandler);
-
-            // record log to file
-            $logHandler = new RecordLogHandler();
-            $logger = isset($container['errLogger']) ? $container['errLogger'] : $container['logger'];
-            $logHandler->setLogger($logger);
-            $logHandler->setOptions($settings);
             $whoops->pushHandler($logHandler);
 
             // Enable JsonResponseHandler when request is AJAX
@@ -90,10 +96,6 @@ class WhoopsMiddleware
 
             $container['whoops'] = $whoops;
         }
-
-        $container['phpErrorHandler'] = $container['errorHandler'] = function($c) {
-            return new ErrorHandler($c);
-        };
 
         return $next($request, $response);
     }
