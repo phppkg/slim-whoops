@@ -53,11 +53,9 @@ class ErrorHandler
         $this->whoops->$handler($exception);
         $content = ob_get_clean();
 
-        $code = $exception->getCode() ?: 500;
-
         return $response
-                ->withStatus($code)
-                ->withHeader('Content-type', 'text\html')
+                ->withStatus(200)
+                ->withHeader('Content-type', 'text/html')
                 ->write($content);
     }
 }
