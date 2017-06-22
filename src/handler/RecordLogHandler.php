@@ -8,7 +8,6 @@
 
 namespace inhere\whoops\handler;
 
-use Monolog\Logger;
 use Whoops\Handler\Handler;
 
 /**
@@ -29,7 +28,7 @@ use Whoops\Handler\Handler;
 class RecordLogHandler extends Handler
 {
     /**
-     * @var Logger
+     * @var
      */
     private $logger;
 
@@ -37,7 +36,6 @@ class RecordLogHandler extends Handler
      * @var array
      */
     private $options = [
-        'debug' => false,
         'logFormat' => 'simple',
     ];
 
@@ -49,7 +47,7 @@ class RecordLogHandler extends Handler
         $this->options = array_merge($this->options, $options);
     }
 
-    public function setLogger(Logger $logger)
+    public function setLogger($logger)
     {
         $this->logger = $logger;
     }
@@ -66,9 +64,9 @@ class RecordLogHandler extends Handler
             $text .= $exception->getTraceAsString();
 
             $context['request'] = [
-                'HOST' => $this->getServer('HTTP_HOST'),
-                'METHOD' => $this->getServer('REQUEST_METHOD'),
-                'URI' => $this->getServer('REQUEST_URI'),
+                'HOST'    => $this->getServer('HTTP_HOST'),
+                'METHOD'  => $this->getServer('REQUEST_METHOD'),
+                'URI'     => $this->getServer('REQUEST_URI'),
                 'REFERER' => $this->getServer('HTTP_REFERER'),
             ];
 
@@ -76,13 +74,12 @@ class RecordLogHandler extends Handler
         }
 
         // without enable debug.
-        if ( false === (bool)$this->options['debug'] ) {
-            echo "An unexpected error occurred.(By whoops)!";
-
+        if (false === (bool)$this->options['debug']) {
+            echo 'An unexpected error occurred.(By whoops)!';
             return Handler::QUIT;
         }
 
-        return Handler::DONE;
+        return Handler::DONE; // QUIT DONE
     }
 
     private function getServer($name, $default = '')
