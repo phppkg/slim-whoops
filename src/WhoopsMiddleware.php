@@ -1,9 +1,9 @@
 <?php
 
-namespace inhere\whoops;
+namespace Inhere\Whoops;
 
-use inhere\whoops\handler\RecordLogHandler;
-use inhere\whoops\handler\ErrorHandler;
+use Inhere\Whoops\Handler\RecordLogHandler;
+use Inhere\Whoops\Handler\ErrorHandler;
 use Whoops\Run as WhoopsRun;
 use Whoops\Util\Misc;
 use Whoops\Handler\PrettyPageHandler;
@@ -15,7 +15,7 @@ use Slim\Container;
 
 /**
  * Class WhoopsMiddleware
- * @package inhere\whoops
+ * @package Inhere\Whoops
  */
 class WhoopsMiddleware
 {

@@ -2,7 +2,7 @@
 require_once dirname(dirname(__FILE__)).'/vendor/autoload.php';
 
 use Slim\App;
-use inhere\whoops\WhoopsMiddleware;
+use Inhere\Whoops\WhoopsMiddleware;
 
 
 $app = new App([

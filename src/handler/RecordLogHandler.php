@@ -6,7 +6,7 @@
  * Time: 下午9:03
  */
 
-namespace inhere\whoops\handler;
+namespace Inhere\Whoops\Handler;
 
 use Monolog\Logger;
 use Whoops\Handler\Handler;
@@ -24,7 +24,7 @@ use Whoops\Handler\Handler;
  * $logHandler->setOptions($settings);
  * $whoops->pushHandler($logHandler);
  * ```
- * @package inhere\whoops\handler
+ * @package Inhere\Whoops\Handler
  */
 class RecordLogHandler extends Handler
 {

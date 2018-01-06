@@ -1,5 +1,5 @@
 <?php
-namespace inhere\whoops\handler;
+namespace Inhere\Whoops\Handler;
 
 use Exception;
 use Psr\Http\Message\ServerRequestInterface;
@@ -11,7 +11,7 @@ use Whoops\Run as WhoopsRun;
  *
  * handle the slim app runtime error.
  *
- * @package inhere\whoops\handler
+ * @package Inhere\Whoops\Handler
  */
 class ErrorHandler
 {

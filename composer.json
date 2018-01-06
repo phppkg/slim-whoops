@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "inhere\\whoops\\": "src/"
+            "Inhere\\Whoops\\": "src/"
         }
     }
 }
