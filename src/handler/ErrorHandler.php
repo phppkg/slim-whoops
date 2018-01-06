@@ -1,7 +1,7 @@
 <?php
+
 namespace Inhere\Whoops\Handler;
 
-use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Response;
 use Whoops\Run as WhoopsRun;
@@ -27,7 +27,7 @@ class ErrorHandler
 
     /**
      * @param RecordLogHandler $logHandler
-     * @param WhoopsRun|null $whoops
+     * @param WhoopsRun|null   $whoops
      */
     public function __construct(RecordLogHandler $logHandler, WhoopsRun $whoops = null)
     {
@@ -37,25 +37,26 @@ class ErrorHandler
 
     /**
      * @param ServerRequestInterface $request
-     * @param Response $response
-     * @param Exception $exception
+     * @param Response               $response
+     * @param \Throwable             $throwable
      * @return Response
      */
-    public function __invoke(ServerRequestInterface $request, Response $response, Exception $exception)
+    public function __invoke(ServerRequestInterface $request, Response $response, $throwable)
     {
         // record exception log
-        $this->logHandler->setException($exception);
+        $this->logHandler->setException($throwable);
 
         // show error
         $handler = WhoopsRun::EXCEPTION_HANDLER;
 
         ob_start();
-        $this->whoops->$handler($exception);
+        $this->whoops->$handler($throwable);
         $content = ob_get_clean();
 
+//        var_dump($content);
         return $response
-                ->withStatus(200)
-                ->withHeader('Content-type', 'text/html')
-                ->write($content);
+            ->withStatus(200)
+            ->withHeader('Content-type', 'text/html')
+            ->write($content);
     }
 }

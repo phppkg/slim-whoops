@@ -24,32 +24,30 @@ class WhoopsMiddleware
      */
     private $app;
 
-    public function __construct(App $app)
+    /**
+     * @var array
+     */
+    private $handlers = [];
+
+    public function __construct(App $app, $handlers = [])
     {
         $this->app = $app;
+        $this->handlers = $handlers;
     }
 
     /**
      * @param Request $request
-     * @param $response
-     * @param $next
+     * @param         $response
+     * @param         $next
      * @return mixed
      */
     public function __invoke(Request $request, $response, $next)
     {
-        $container   = $this->app->getContainer();
-        $settings    = $container['settings']->get('whoops');
+        $app = $this->app ?: $next;
 
-        // record log to file
-        $logHandler = new RecordLogHandler();
-        $logger = isset($container['errLogger']) ? $container['errLogger'] : $container['logger'];
-        $logHandler->setLogger($logger);
-        $logHandler->setOptions($settings);
-
-        $container['phpErrorHandler'] = $container['errorHandler'] = function($c) use ($logHandler) {
-            /** @var Container $c */
-            return new ErrorHandler($logHandler, $c->has('whoops') ? $c->get('whoops') : null);
-        };
+        $whoops = new WhoopsRun;
+        $container = $this->app->getContainer();
+        $settings = $container['settings']->get('whoops');
 
         if (isset($settings['debug']) && (bool)$settings['debug'] === true) {
             /** @var Environment $environment */
@@ -75,7 +73,7 @@ class WhoopsMiddleware
                 'Path'            => $request->getUri()->getPath(),
                 'Query String'    => $request->getUri()->getQuery() ?: '<none>',
                 'HTTP Method'     => $request->getMethod(),
-                'Base URL'        => (string) $request->getUri(),
+                'Base URL'        => (string)$request->getUri(),
                 'REMOTE ADDR'     => $environment->get('REMOTE_ADDR'),
                 'Scheme'          => $request->getUri()->getScheme(),
                 'Port'            => $request->getUri()->getPort(),
@@ -83,21 +81,31 @@ class WhoopsMiddleware
             ));
 
             // Set Whoops to default exception handler
-            $whoops = new WhoopsRun;
             $whoops->pushHandler($prettyPageHandler);
-            $whoops->pushHandler($logHandler);
 
             // Enable JsonResponseHandler when request is AJAX
-            if (Misc::isAjaxRequest()){
+            if (Misc::isAjaxRequest()) {
                 $whoops->pushHandler(new JsonResponseHandler());
             }
-
-            $whoops->register();
-
-            $container['whoops'] = $whoops;
         }
 
-        return $next($request, $response);
+        // record log to file
+        $logHandler = new RecordLogHandler();
+
+        $logger = isset($container['errLogger']) ? $container['errLogger'] : $container['logger'];
+        $logHandler->setLogger($logger);
+        $logHandler->setOptions($settings);
+
+        $whoops->pushHandler($logHandler);
+        $whoops->register();
+
+        $container['whoops'] = $whoops;
+        $container['phpErrorHandler'] = $container['errorHandler'] = function ($c) use ($logHandler) {
+            /** @var Container $c */
+            return new ErrorHandler($logHandler, $c->has('whoops') ? $c->get('whoops') : null);
+        };
+
+        return $app($request, $response);
     }
 
 }
